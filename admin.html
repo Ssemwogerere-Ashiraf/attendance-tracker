@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administrator - UMU Attendance System</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Login Page -->
+    <div id="loginPage" class="login-container">
+        <div class="login-card">
+            <div class="login-logo">
+                <i class="fas fa-user-shield"></i>
+            </div>
+            <div class="login-title">
+                <h4>Administrator Login</h4>
+                <p class="text-muted small">Enter your staff credentials</p>
+            </div>
+            
+            <form id="adminLoginForm">
+                <div class="mb-3">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-control" id="adminPassword" 
+                           placeholder="Enter staff password">
+                    <small class="text-muted">Use: staff@umu2026</small>
+                </div>
+                <button type="button" class="btn btn-primary w-100" onclick="adminPortal.verifyAdmin()">
+                    <i class="fas fa-sign-in-alt me-2"></i>Login
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin Dashboard (Hidden by default) -->
+    <div id="adminDashboard" style="display: none;">
+        <!-- Navigation -->
+        <nav class="navbar navbar-expand-lg">
+            <div class="container">
+                <a class="navbar-brand" href="index.html">
+                    <i class="fas fa-university me-2"></i>
+                    UMU Attendance System - Administrator
+                </a>
+                <div class="ms-auto d-flex align-items-center">
+                    <span class="me-3"><i class="fas fa-user-shield me-2"></i>Administrator</span>
+                    <div class="theme-toggle me-3" onclick="toggleTheme()">
+                        <i class="fas fa-moon" id="themeIcon"></i>
+                    </div>
+                    <button class="btn btn-outline-danger btn-sm" onclick="adminPortal.logoutAdmin()">
+                        <i class="fas fa-sign-out-alt me-1"></i>Logout
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <div class="container py-4">
+            <!-- Dashboard Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="fw-bold mb-1">Dashboard</h2>
+                    <p class="text-muted">Manage attendance sessions and view reports</p>
+                </div>
+                <div>
+                    <button class="btn btn-primary me-2" onclick="adminPortal.showTab('students')">
+                        <i class="fas fa-users me-2"></i>Students
+                    </button>
+                    <button class="btn btn-success me-2" onclick="adminPortal.showTab('attendance')">
+                        <i class="fas fa-calendar-check me-2"></i>Attendance
+                    </button>
+                    <button class="btn btn-warning" onclick="adminPortal.showTab('reports')">
+                        <i class="fas fa-chart-bar me-2"></i>Reports
+                    </button>
+                </div>
+            </div>
+
+            <!-- Statistics Cards -->
+            <div class="row mb-4">
+                <div class="col-md-3 mb-3">
+                    <div class="stats-card">
+                        <i class="fas fa-users stats-icon"></i>
+                        <div class="stats-label">Total Students</div>
+                        <div class="stats-number" id="totalStudents">0</div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="stats-card" style="background: var(--gradient-success);">
+                        <i class="fas fa-check-circle stats-icon"></i>
+                        <div class="stats-label">Present Today</div>
+                        <div class="stats-number" id="presentToday">0</div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="stats-card" style="background: var(--gradient-warning);">
+                        <i class="fas fa-clock stats-icon"></i>
+                        <div class="stats-label">Late Today</div>
+                        <div class="stats-number" id="lateToday">0</div>
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="stats-card" style="background: var(--gradient-primary);">
+                        <i class="fas fa-calendar-check stats-icon"></i>
+                        <div class="stats-label">Active Sessions</div>
+                        <div class="stats-number" id="totalSessions">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabs Content -->
+            <div class="card">
+                <div class="card-header bg-white">
+                    <ul class="nav nav-tabs card-header-tabs">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#students" onclick="adminPortal.showTab('students')">Students</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#attendance" onclick="adminPortal.showTab('attendance')">Attendance Sessions</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#reports" onclick="adminPortal.showTab('reports')">Reports</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body">
+                    <!-- Students Tab -->
+                    <div id="studentsTab">
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="searchStudent" 
+                                           placeholder="Search by name, reg number, email...">
+                                    <button class="btn btn-primary" onclick="adminPortal.searchStudents()">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select" id="filterFaculty" onchange="adminPortal.filterStudents()">
+                                    <option value="">All Faculties</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select" id="filterProgram" onchange="adminPortal.filterStudents()">
+                                    <option value="">All Programs</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn btn-success w-100" onclick="adminPortal.exportStudents()">
+                                    <i class="fas fa-download me-2"></i>Export
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Photo</th>
+                                        <th>Reg Number</th>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Faculty</th>
+                                        <th>Program</th>
+                                        <th>Year/Sem</th>
+                                        <th>Courses</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="studentsTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Attendance Tab -->
+                    <div id="attendanceTab" style="display: none;">
+                        <div class="row mb-3">
+                            <div class="col-md-3">
+                                <button class="btn btn-primary w-100" onclick="adminPortal.showCreateSessionModal()">
+                                    <i class="fas fa-plus me-2"></i>New Session
+                                </button>
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select" id="filterCourseAttendance" onchange="adminPortal.filterAttendance()">
+                                    <option value="">All Courses</option>
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <input type="date" class="form-control" id="filterDate" onchange="adminPortal.filterAttendance()">
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select" id="filterStatus" onchange="adminPortal.filterAttendance()">
+                                    <option value="">All Status</option>
+                                    <option value="active">Active</option>
+                                    <option value="expired">Expired</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Session ID</th>
+                                        <th>Course</th>
+                                        <th>Start Time</th>
+                                        <th>Duration</th>
+                                        <th>Method</th>
+                                        <th>Code/QR</th>
+                                        <th>Attendees</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="attendanceTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Reports Tab -->
+                    <div id="reportsTab" style="display: none;">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <canvas id="attendanceChart" height="300"></canvas>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="list-group">
+                                    <a href="#" class="list-group-item list-group-item-action" onclick="adminPortal.generateReport('daily')">
+                                        <i class="fas fa-calendar-day me-2"></i>Daily Report
+                                    </a>
+                                    <a href="#" class="list-group-item list-group-item-action" onclick="adminPortal.generateReport('weekly')">
+                                        <i class="fas fa-calendar-week me-2"></i>Weekly Report
+                                    </a>
+                                    <a href="#" class="list-group-item list-group-item-action" onclick="adminPortal.generateReport('monthly')">
+                                        <i class="fas fa-calendar-alt me-2"></i>Monthly Report
+                                    </a>
+                                    <a href="#" class="list-group-item list-group-item-action" onclick="adminPortal.generateReport('course')">
+                                        <i class="fas fa-book me-2"></i>By Course
+                                    </a>
+                                    <a href="#" class="list-group-item list-group-item-action" onclick="adminPortal.generateReport('student')">
+                                        <i class="fas fa-user-graduate me-2"></i>By Student
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Session Modal -->
+    <div class="modal fade" id="createSessionModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create Attendance Session</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="sessionForm">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Faculty</label>
+                                <select class="form-select" id="sessionFaculty" onchange="adminPortal.loadSessionPrograms()">
+                                    <option value="">Select Faculty</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Program</label>
+                                <select class="form-select" id="sessionProgram" onchange="adminPortal.loadSessionYears()">
+                                    <option value="">Select Program</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Year</label>
+                                <select class="form-select" id="sessionYear" onchange="adminPortal.loadSessionSemesters()">
+                                    <option value="">Select Year</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Semester</label>
+                                <select class="form-select" id="sessionSemester" onchange="adminPortal.loadSessionCourses()">
+                                    <option value="">Select Semester</option>
+                                </select>
+                            </div>
+                            <div class="col-md-12 mb-3">
+                                <label class="form-label">Course Unit</label>
+                                <select class="form-select" id="sessionCourse" required>
+                                    <option value="">Select Course Unit</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Attendance Method</label>
+                                <select class="form-select" id="sessionMethod" onchange="adminPortal.toggleAttendanceMethod()">
+                                    <option value="code">One-Time Code</option>
+                                    <option value="qr">QR Code</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Duration (minutes)</label>
+                                <input type="number" class="form-control" id="sessionDuration" value="15" min="5" max="120">
+                            </div>
+                            <div class="col-12 mb-3" id="codeSection">
+                                <label class="form-label">Generated Code</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="generatedCode" readonly>
+                                    <button class="btn btn-outline-secondary" type="button" onclick="adminPortal.generateNewCode()">
+                                        <i class="fas fa-sync-alt"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-12 mb-3 text-center" id="qrSection" style="display: none;">
+                                <label class="form-label">QR Code</label>
+                                <div class="qr-display">
+                                    <img id="qrCodeImage" src="" alt="QR Code" class="qr-code">
+                                    <p class="mt-2">
+                                        <button class="btn btn-sm btn-outline-primary" onclick="adminPortal.downloadQRCode()">
+                                            <i class="fas fa-download me-1"></i>Download QR
+                                        </button>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="adminPortal.createAttendanceSession()">
+                        <i class="fas fa-play me-1"></i>Start Session
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Session Modal -->
+    <div class="modal fade" id="viewSessionModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Session Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="sessionDetails"></div>
+                    
+                    <h6 class="mt-4">Attendance List</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Student</th>
+                                    <th>Reg Number</th>
+                                    <th>Time</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="attendanceListBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Data Files -->
+    <script src="data/sample-data.js"></script>
+    <script src="data/umu-courses.js"></script>
+    
+    <!-- Custom JS -->
+    <script src="js/main.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+</html>
